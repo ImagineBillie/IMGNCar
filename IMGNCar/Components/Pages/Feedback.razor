@@ -1,0 +1,228 @@
+﻿@page "/Feedback"
+@rendermode InteractiveServer
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+<PageTitle>Feedback</PageTitle>
+
+@if (!submitted)
+{
+    <h1 class="mb-4">Feedback Form</h1>
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mb-4">@errorMessage</div>
+    }
+    <EditForm Model="@newFeedback" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <!-- Hidden Fields (Set values programmatically instead) -->
+        <input type="hidden" @bind="newFeedback.BookingId" />
+        <input type="hidden" @bind="newFeedback.UserId" />
+
+        <!-- Ratings Section -->
+        <div class="mb-4">
+            <div class="form-group">
+                <label>Overall Satisfaction</label>
+                <InputSelect class="form-select" @bind-Value="newFeedback.OverallSatisfaction">
+                    <option value="">Select Rating (1-5)</option>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i Stars</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newFeedback.OverallSatisfaction)" />
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Car Condition</label>
+                <InputSelect class="form-select" @bind-Value="newFeedback.CarConditionRating">
+                    <option value="">Select Rating (1-5)</option>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i Stars</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newFeedback.CarConditionRating)" />
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Pick-Up Process</label>
+                <InputSelect class="form-select" @bind-Value="newFeedback.PickupProcessRating">
+                    <option value="">Select Rating (1-5)</option>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i Stars</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newFeedback.PickupProcessRating)" />
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Drop-Off Process</label>
+                <InputSelect class="form-select" @bind-Value="newFeedback.DropoffProcessRating">
+                    <option value="">Select Rating (1-5)</option>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i Stars</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newFeedback.DropoffProcessRating)" />
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Customer Service</label>
+                <InputSelect class="form-select" @bind-Value="newFeedback.CustomerServiceRating">
+                    <option value="">Select Rating (1-5)</option>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i Stars</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newFeedback.CustomerServiceRating)" />
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="form-group">
+            <label>Comments</label>
+            <InputTextArea class="form-control"
+                           @bind-Value="newFeedback.Comments"
+                           rows="3" />
+            <ValidationMessage For="@(() => newFeedback.Comments)" />
+        </div>
+
+        <!-- Recommendations -->
+        <div class="form-group mt-4">
+            <label>Would you rent from us again?</label>
+            <InputRadioGroup @bind-Value="newFeedback.WouldRentAgain">
+                <div class="form-check form-check-inline">
+                    <InputRadio Value="true" class="form-check-input" />
+                    <label class="form-check-label">Yes</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <InputRadio Value="false" class="form-check-input" />
+                    <label class="form-check-label">No</label>
+                </div>
+            </InputRadioGroup>
+        </div>
+
+        <div class="form-group mt-4">
+            <label>Would you recommend to your friends?</label>
+            <InputRadioGroup @bind-Value="newFeedback.WouldRecommend">
+                <div class="form-check form-check-inline">
+                    <InputRadio Value="true" class="form-check-input" />
+                    <label class="form-check-label">Yes</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <InputRadio Value="false" class="form-check-input" />
+                    <label class="form-check-label">No</label>
+                </div>
+            </InputRadioGroup>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-4">Submit Feedback</button>
+    </EditForm>
+}
+else
+{
+    <div class="thank-you-message text-center py-5">
+        <i class="fas fa-check-circle text-success fa-5x mb-4"></i>
+        <h2 class="mb-3">Thank You!</h2>
+        <p class="lead">We appreciate your feedback.</p>
+        <button class="btn btn-primary mt-4" @onclick="ReturnToHome">
+            Return to Homepage
+        </button>
+    </div>
+}
+
+@code {
+    private NewFeedback newFeedback = new();
+    private bool submitted = false;
+    private string? errorMessage;
+
+    protected override void OnInitialized()
+    {
+        // Set default values for testing (replace with actual values from your system)
+        newFeedback.BookingId = 1; // Get from navigation state or parameters
+        newFeedback.UserId = 1;    // Get from authentication system
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            // Set timestamps
+            newFeedback.FeedbackSubmissionDate = DateTime.UtcNow;
+            newFeedback.CreatedAt = DateTime.UtcNow;
+            newFeedback.UpdatedAt = DateTime.UtcNow;
+
+            // Send to API
+            var response = await Http.PostAsJsonAsync("http://localhost:5087/api/feedbacks", newFeedback);
+
+            if (response.IsSuccessStatusCode)
+            {
+                submitted = true;
+            }
+            else
+            {
+                errorMessage = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"API Error: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private void ReturnToHome()
+    {
+        NavManager.NavigateTo("/");
+    }
+
+    public class NewFeedback
+    {
+        public int FeedbackId { get; set; }
+
+        [Required]
+        public int BookingId { get; set; }
+
+        [Required]
+        public int UserId { get; set; }
+
+        [Required(ErrorMessage = "Please select a rating")]
+        [Range(1, 5)]
+        public byte OverallSatisfaction { get; set; }
+
+        [Required(ErrorMessage = "Please select a rating")]
+        [Range(1, 5)]
+        public byte CarConditionRating { get; set; }
+
+        [Required(ErrorMessage = "Please select a rating")]
+        [Range(1, 5)]
+        public byte PickupProcessRating { get; set; }
+
+        [Required(ErrorMessage = "Please select a rating")]
+        [Range(1, 5)]
+        public byte DropoffProcessRating { get; set; }
+
+        [Required(ErrorMessage = "Please select a rating")]
+        [Range(1, 5)]
+        public byte CustomerServiceRating { get; set; }
+
+        [Required(ErrorMessage = "Please provide comments")]
+        public string Comments { get; set; } = string.Empty;
+
+        [Required]
+        public bool WouldRentAgain { get; set; }
+
+        [Required]
+        public bool WouldRecommend { get; set; }
+
+        public DateTime FeedbackSubmissionDate { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+}

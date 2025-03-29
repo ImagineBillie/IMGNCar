@@ -1,0 +1,151 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@inject NavigationManager NavManager
+@inject HttpClient Http
+
+<PageTitle>IMGN Car Rentals - Your Journey Begins Here</PageTitle>
+
+<!-- Hero Section -->
+<div class="hero-section overflow-hidden">
+    <div class="hero-overlay"></div>
+    <div class="container">
+        <div class="hero-content text-center text-white">
+            <h1 class="display-4 fw-bold">Premium Car Rentals Made Simple</h1>
+            <p class="lead">Choose from our wide selection of luxury and economy vehicles</p>
+            <button style="background-color:limegreen" class="btn btn-lg" 
+                    @onclick='() => NavManager.NavigateTo("/browse")'>
+                Browse Our Fleet
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Why Choose Us -->
+<div class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Choose IMGN Rentals</h2>
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="p-4 bg-white rounded shadow-sm">
+                    <i class="fas fa-shield-alt fa-3x mb-3"></i>
+                    <h3>Fully Insured</h3>
+                    <p>24/7 roadside assistance and comprehensive coverage</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="p-4 bg-white rounded shadow-sm">
+                    <i class="fas fa-clock fa-3x mb-3"></i>
+                    <h3>Flexible Rental</h3>
+                    <p>Hourly, daily, or weekly rentals to suit your needs</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="p-4 bg-white rounded shadow-sm">
+                    <i class="fas fa-tag fa-3x mb-3"></i>
+                    <h3>Best Prices</h3>
+                    <p>Price match guarantee on all vehicle categories</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Cars -->
+<div class="container py-5">
+    <h2 class="text-center mb-5">Featured Vehicles</h2>
+    <div class="row g-4">
+        @foreach (var car in cars.Take(3))
+        {
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-img-container">
+                        <img src="Media/Cars/@car.ImageUrl" 
+                             class="card-img-top" 
+                             alt="@car.Model"
+                             loading="lazy"
+                             style="height: 250px; object-fit: cover;">
+                        <div class="car-price-badge">RM @car.DailyRate<span>/day</span></div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@car.Make @car.Model</h5>
+                        <div class="car-specs mb-3">
+                            <span class="badge bg-secondary">@car.TransmissionType</span>
+                            <span class="badge bg-secondary">@car.Category</span>
+                            <span class="badge bg-secondary">@car.Year</span>
+                        </div>
+                        <button class="btn btn-outline-primary w-100"
+                                @onclick='() => NavManager.NavigateTo($"/cars/{car.CarId}")'>
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="text-center mt-5">
+        <button style="background-color:limegreen" class="btn btn-lg"
+                @onclick='() => NavManager.NavigateTo("/browse")'>
+            Browse All Vehicles
+        </button>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        width: 100vw;
+        height: 100vh; /* Full viewport height */
+        min-height: 600px; /* Minimum height for smaller screens */
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('Media/moeny.jpg') center/cover no-repeat;
+        margin: 0 calc(-50vw + 50%); /* Force full width regardless of parent container */
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Added for horizontal centering */
+    }
+
+    .car-price-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255,255,255,0.9);
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+    }
+
+    .card-img-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .fas{
+        color: limegreen;
+    }
+
+</style>
+
+@code {
+    private List<Car> cars = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        cars = await Http.GetFromJsonAsync<List<Car>>("http://localhost:5087/api/cars") ?? new();
+    }
+
+    public class Car
+    {
+        public int CarId { get; set; }
+        public string Make { get; set; } = default!;
+        public string Model { get; set; } = default!;
+        public string Category { get; set; } = default!;
+        public int Year { get; set; }
+        public string TransmissionType { get; set; } = default!;
+        public decimal DailyRate { get; set; }
+        public string ImageUrl { get; set; } = default!;
+    }
+}

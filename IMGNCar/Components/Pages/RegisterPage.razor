@@ -1,0 +1,129 @@
+﻿@page "/signup"
+@using IMGNCar.Components.Layout
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@layout EmptyLayout
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+
+<PageTitle>Sign Up</PageTitle>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Sign Up</h2>
+    <EditForm Model="@newUser" OnValidSubmit="HandleSignUp"
+              @attributes='new Dictionary<string, object> { { "FormName", "SignupForm" } }'>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="usernameInput" class="form-label">Username</label>
+            <InputText id="usernameInput" class="form-control" @bind-Value="newUser.Username" placeholder="Enter your username" />
+        </div>
+
+        <div class="mb-3">
+            <label for="passwordInput" class="form-label">Password</label>
+            <InputText id="passwordInput" type="password" class="form-control" @bind-Value="newUser.Password" placeholder="Password" />
+        </div>
+
+        <div class="mb-3">
+            <label for="emailInput" class="form-label">Email address</label>
+            <InputText id="emailInput" type="email" class="form-control" @bind-Value="newUser.Email" placeholder="Enter email" />
+            <small class="form-text text-muted">
+                We'll never share your email with anyone else.
+            </small>
+        </div>
+
+        <div class="mb-3">
+            <label for="phoneInput" class="form-label">Phone Number</label>
+            <InputText id="phoneInput" class="form-control" @bind-Value="newUser.PhoneNumber" placeholder="e.g. 0123456789" />
+        </div>
+
+        <div class="mb-3">
+            <label for="firstNameInput" class="form-label">First Name</label>
+            <InputText id="firstNameInput" class="form-control" @bind-Value="newUser.FirstName" />
+        </div>
+
+        <div class="mb-3">
+            <label for="lastNameInput" class="form-label">Last Name</label>
+            <InputText id="lastNameInput" class="form-control" @bind-Value="newUser.LastName" />
+        </div>
+
+        <div class="mb-3">
+            <label for="dobInput" class="form-label">Date of Birth</label>
+            <InputDate id="dobInput" class="form-control" @bind-Value="newUser.DateOfBirth" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Sign Up</button>
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mt-3">@errorMessage</div>
+    }
+</div>
+
+@code {
+    private NewUser newUser = new();
+    private string errorMessage = "";
+
+    private async Task HandleSignUp()
+    {
+        Console.WriteLine("DEBUG: HandleSignUp triggered.");
+        try
+        {
+            // Copy the plain password to PasswordHash so that the API receives it.
+            newUser.PasswordHash = newUser.Password;
+            // Optionally convert DateOfBirth to UTC if required by your API.
+            newUser.DateOfBirth = newUser.DateOfBirth?.ToUniversalTime();
+
+            var response = await Http.PostAsJsonAsync("http://localhost:5087/api/users", newUser);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("DEBUG: API response: " + responseContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavManager.NavigateTo("/login");
+            }
+            else
+            {
+                errorMessage = $"Sign up failed. Status: {response.StatusCode}, Message: {responseContent}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+            Console.WriteLine("DEBUG: Exception: " + ex.Message);
+        }
+    }
+
+    public class NewUser
+    {
+        [Required(ErrorMessage = "Username is required.")]
+        [MaxLength(50)]
+        public string Username { get; set; } = "";
+
+        [Required(ErrorMessage = "Password is required.")]
+        [MaxLength(255)]
+        public string Password { get; set; } = "";
+
+        // This property must be set in code (in HandleSignUp)
+        public string PasswordHash { get; set; } = "";
+
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email address.")]
+        [MaxLength(100)]
+        public string Email { get; set; } = "";
+
+        [MaxLength(20)]
+        public string PhoneNumber { get; set; } = "";
+
+        [MaxLength(50)]
+        public string FirstName { get; set; } = "";
+
+        [MaxLength(50)]
+        public string LastName { get; set; } = "";
+
+        public DateTime? DateOfBirth { get; set; }
+    }
+}

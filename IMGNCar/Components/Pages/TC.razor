@@ -1,0 +1,137 @@
+﻿@page "/terms"
+@rendermode InteractiveServer
+@inject NavigationManager NavManager
+
+<PageTitle>T&C</PageTitle>
+
+<div class="container py-5">
+    <h1 class="mb-4">Terms of Service</h1>
+    <p class="text-muted">Last Updated: @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+
+    <div class="tos-content">
+        <!-- Introduction -->
+        <section class="mb-5">
+            <h2 class="h4 mb-3">1. Introduction</h2>
+            <p>Welcome to IMGNCar. These Terms of Service govern your use of our car rental services and website. By accessing or using our services, you agree to be bound by these terms.</p>
+        </section>
+
+        <!-- Eligibility -->
+        <section class="mb-5">
+            <h2 class="h4 mb-3">2. Eligibility Requirements</h2>
+            <ul>
+                <li>Minimum age: 21 years (25 for premium vehicles)</li>
+                <li>Valid driver's license held for at least 2 years</li>
+                <li>Approved payment method required</li>
+                <li>No major traffic violations in last 3 years</li>
+            </ul>
+        </section>
+
+        <!-- Rental Agreement -->
+        <section class="mb-5">
+            <h2 class="h4 mb-3">3. Rental Terms</h2>
+            <div class="mb-4">
+                <h3 class="h5">3.1 Vehicle Use</h3>
+                <ul>
+                    <li>Vehicles must be used only on paved roads</li>
+                    <li>Prohibited: Smoking, off-road use, towing</li>
+                    <li>Geographical restrictions may apply</li>
+                </ul>
+            </div>
+            
+            <div class="mb-4">
+                <h3 class="h5">3.2 Payment & Fees</h3>
+                <ul>
+                    <li>Base rate: Daily/weekly/monthly options</li>
+                    <li>Security deposit: $200-500 (refundable)</li>
+                    <li>Late return fee: $50/hour after 1-hour grace period</li>
+                    <li>Cleaning fee: $150 for smoking/vaping</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Cancellations -->
+        <section class="mb-5">
+            <h2 class="h4 mb-3">4. Cancellation Policy</h2>
+            <ul>
+                <li>Free cancellation up to 24 hours before pickup</li>
+                <li>50% charge for cancellations within 24 hours</li>
+                <li>No refund for no-shows</li>
+            </ul>
+        </section>
+
+        <!-- Insurance -->
+        <section class="mb-5">
+            <h2 class="h4 mb-3">5. Insurance & Liability</h2>
+            <ul>
+                <li>Basic third-party liability included</li>
+                <li>Collision Damage Waiver (CDW) available at RM100/day</li>
+                <li>Personal insurance must meet state minimums</li>
+                <li>RM 1,500 deductible applies to all damage claims</li>
+            </ul>
+        </section>
+
+        <!-- Prohibited Uses -->
+        <section class="mb-5">
+            <h2 class="h4 mb-3">6. Prohibited Activities</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul>
+                        <li>Driving under influence</li>
+                        <li>Unauthorized drivers</li>
+                        <li>Commercial use</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul>
+                        <li>Animal transport without approval</li>
+                        <li>Cross-border travel restrictions</li>
+                        <li>Speed limiter tampering</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Governing Law -->
+        <section class="mb-5">
+            <h2 class="h4 mb-3">7. Governing Law</h2>
+            <p>These terms shall be governed by the laws of Malaysia. Any disputes must be resolved in the courts.</p>
+        </section>
+
+        <!-- Changes to Terms -->
+        <section class="mb-5">
+            <h2 class="h4 mb-3">8. Policy Updates</h2>
+            <p>We reserve the right to modify these terms. Continued use after changes constitutes acceptance.</p>
+        </section>
+
+        <!-- Contact -->
+        <section>
+            <h2 class="h4 mb-3">9. Contact Us</h2>
+            <p>Questions? <a href="/contact" @onclick='() => NavManager.NavigateTo("/contactus")'>Contact our legal team</a></p>
+        </section>
+    </div>
+</div>
+
+
+@code {
+
+}
+<style>
+    .tos-content {
+        line-height: 1.8;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    h1, h2, h3 {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    ul {
+        padding-left: 1.5rem;
+    }
+
+    li {
+        margin-bottom: 0.5rem;
+    }
+</style>

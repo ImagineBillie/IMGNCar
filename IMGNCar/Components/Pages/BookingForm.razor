@@ -1,0 +1,329 @@
+﻿@page "/booking/{CarId:int}"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+
+<PageTitle>Book @car?.Make @car?.Model</PageTitle>
+
+<div class="container py-5">
+    @if (car == null)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p>Loading vehicle details...</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-5">
+            <!-- Car Summary -->
+            <div class="col-md-5 col-lg-4">
+                <div class="card shadow-sm">
+                    <img src="Media/Cars/@car.ImageUrl"
+                         class="card-img-top"
+                         alt="@car.Make @car.Model"
+                         style="height: 300px; object-fit: cover;" />
+                    <div class="card-body">
+                        <h4 class="card-title">@car.Make @car.Model</h4>
+                        <p>@car.Category &middot; @car.Year</p>
+                        <p><strong>Daily Rate:</strong> RM @car.DailyRate / day</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Form -->
+            <div class="col-md-7 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">Booking Details</h3>
+                        <form @onsubmit="HandleFormSubmit" @onsubmit:preventDefault>
+                            <!-- Pickup Location -->
+                            <div class="mb-3">
+                                <label class="form-label">Pickup Location</label>
+                                <select class="form-select" required @onchange="OnPickupLocationChange">
+                                    <option value="">Select location</option>
+                                    <option value="Shah Alam HQ">Shah Alam HQ</option>
+                                    <option value="Ampang Branch">Ampang Branch</option>
+                                    <option value="Rawang Branch">Rawang Branch</option>
+                                </select>
+                            </div>
+
+                            <!-- Dropoff Location -->
+                            <div class="mb-3">
+                                <label class="form-label">Dropoff Location</label>
+                                <select class="form-select" required @onchange="OnDropoffLocationChange">
+                                    <option value="">Select location</option>
+                                    <option value="Shah Alam HQ">Shah Alam HQ</option>
+                                    <option value="Ampang Branch">Ampang Branch</option>
+                                    <option value="Rawang Branch">Rawang Branch</option>
+                                </select>
+                            </div>
+
+                            <!-- Pickup Date -->
+                            <div class="mb-3">
+                                <label class="form-label">Pickup Date</label>
+                                <input type="date" class="form-control" required @onchange="OnPickupDatetimeChange" />
+                            </div>
+
+                            <!-- Rental Days -->
+                            <div class="mb-3">
+                                <label class="form-label">Rental Days</label>
+                                <select class="form-select" required @onchange="OnRentalDaysChange">
+                                    <option value="">Select days</option>
+                                    @for (int i = 1; i <= 14; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Show Total Price -->
+                            <div class="mb-3 alert alert-info">
+                                <p class="mb-0"><strong>Total Price:</strong> RM @booking.TotalRentalPrice.ToString("N2")</p>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success">Submit Booking</button>
+                                <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger mt-3">@errorMessage</div>
+        }
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="alert alert-success mt-3">@successMessage</div>
+        }
+    }
+</div>
+
+<!-- Confirmation Modal (conditionally rendered) -->
+@if (showConfirmation)
+{
+    <div class="modal-overlay">
+        <div class="modal-dialog-centered modal-content p-4">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Booking</h5>
+            </div>
+            <div class="modal-body">
+                <p>Please review your booking details:</p>
+                <dl class="row">
+                    <dt class="col-sm-5">Vehicle</dt>
+                    <dd class="col-sm-7">@car?.Make @car?.Model</dd>
+
+                    <dt class="col-sm-5">Pickup Date</dt>
+                    <dd class="col-sm-7">@booking.PickupDatetime.ToShortDateString()</dd>
+
+                    <dt class="col-sm-5">Rental Days</dt>
+                    <dd class="col-sm-7">@booking.RentalDays</dd>
+
+                    <dt class="col-sm-5">Total Price</dt>
+                    <dd class="col-sm-7">RM @booking.TotalRentalPrice.ToString("N2")</dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="() => showConfirmation = false">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="ConfirmBooking">Confirm</button>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        backdrop-filter: blur(2px);
+        background-color: rgba(0,0,0,0.5);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-dialog-centered {
+        background-color: #fff;
+        border-radius: 5px;
+        max-width: 500px;
+        width: 90%;
+    }
+</style>
+
+@code {
+    [Parameter] public int CarId { get; set; }
+    private string errorMessage = "";
+    private string successMessage = "";
+    private Car? car;
+    private Booking booking = new();
+    private bool showConfirmation = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize booking defaults
+        booking.CarId = CarId;
+        booking.PickupDatetime = DateTime.Today.AddDays(1);
+        booking.RentalDays = 0;
+        booking.TotalRentalPrice = 0m;
+        booking.PickupLocation = "";
+        booking.DropoffLocation = "";
+
+        // Load car details
+        car = await Http.GetFromJsonAsync<Car>($"http://localhost:5087/api/cars/{CarId}");
+    }
+
+    private void OnPickupLocationChange(ChangeEventArgs e)
+    {
+        booking.PickupLocation = e.Value?.ToString() ?? "";
+    }
+
+    private void OnDropoffLocationChange(ChangeEventArgs e)
+    {
+        booking.DropoffLocation = e.Value?.ToString() ?? "";
+    }
+
+    private void OnPickupDatetimeChange(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var dt))
+        {
+            booking.PickupDatetime = dt;
+        }
+    }
+
+    private void OnRentalDaysChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var days))
+        {
+            booking.RentalDays = days;
+        }
+        CalculateTotalPrice();
+    }
+
+    private void CalculateTotalPrice()
+    {
+        if (car != null && booking.RentalDays > 0)
+        {
+            booking.TotalRentalPrice = booking.RentalDays * car.DailyRate;
+        }
+        else
+        {
+            booking.TotalRentalPrice = 0m;
+        }
+        StateHasChanged();
+    }
+
+    // Called when form is submitted
+    private void HandleFormSubmit()
+    {
+        // Validate required fields
+        if (string.IsNullOrEmpty(booking.PickupLocation) ||
+            string.IsNullOrEmpty(booking.DropoffLocation) ||
+            booking.RentalDays <= 0 ||
+            booking.PickupDatetime < DateTime.Today)
+        {
+            errorMessage = "Please fill all required fields correctly.";
+            return;
+        }
+        errorMessage = "";
+        // Show the confirmation modal
+        showConfirmation = true;
+        StateHasChanged();
+    }
+
+    private async Task ConfirmBooking()
+    {
+        try
+        {
+            showConfirmation = false; // Hide modal
+
+            // Retrieve current user's ID from authentication state
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            if (user.Identity is not null && user.Identity.IsAuthenticated)
+            {
+                var claim = user.FindFirst("UserId") ?? user.FindFirst("sub");
+                if (claim != null)
+                {
+                    booking.UserId = int.Parse(claim.Value);
+                }
+                else
+                {
+                    booking.UserId = 1; // fallback, but ideally force login
+                }
+            }
+            else
+            {
+                // User not authenticated, navigate to login page.
+                NavManager.NavigateTo("/login");
+                return;
+            }
+
+            // Set dropoff datetime based on pickup datetime and rental days
+            booking.DropoffDatetime = booking.PickupDatetime.AddDays(booking.RentalDays);
+
+            // Post the booking to your API
+            var response = await Http.PostAsJsonAsync("http://localhost:5087/api/bookings", booking);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("DEBUG: Booking API response: " + responseContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Show a success message for a moment, then navigate to home.
+                successMessage = "Booking successful! Redirecting to homepage...";
+                StateHasChanged();
+                await Task.Delay(2000);
+                NavManager.NavigateTo("/");
+            }
+            else
+            {
+                errorMessage = $"Booking failed. Status: {response.StatusCode}, Message: {responseContent}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred while booking: {ex.Message}";
+        }
+    }
+
+    private void GoBack() => NavManager.NavigateTo("/browse");
+
+    // Model classes
+    public class Car
+    {
+        public int CarId { get; set; }
+        public string Make { get; set; } = "";
+        public string Model { get; set; } = "";
+        public string Category { get; set; } = "";
+        public int Year { get; set; }
+        public string TransmissionType { get; set; } = "";
+        public decimal DailyRate { get; set; }
+        public string ImageUrl { get; set; } = "";
+        public bool AvailabilityStatus { get; set; }
+    }
+
+    public class Booking
+    {
+        public int BookingId { get; set; }
+        public int UserId { get; set; }
+        public int CarId { get; set; }
+        public string PickupLocation { get; set; } = "";
+        public DateTime PickupDatetime { get; set; }
+        public string DropoffLocation { get; set; } = "";
+        public DateTime DropoffDatetime { get; set; }
+        public DateTime BookingDate { get; set; }
+        public int RentalDays { get; set; }
+        public decimal TotalRentalPrice { get; set; }
+        public string BookingStatus { get; set; } = "Pending";
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+}

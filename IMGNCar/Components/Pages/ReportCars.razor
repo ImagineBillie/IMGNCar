@@ -1,0 +1,72 @@
+﻿@* @page "/admin/cars" *@
+@* @using IMGNCar.Components.Layout *@
+@* @layout AdminLayout *@
+@* @rendermode InteractiveServer *@
+@* @inject HttpClient Http *@
+@* @inject NavigationManager NavManager *@
+
+@* <h3>Car Lists</h3> *@
+
+
+@* <!-- Car Edit Modal --> *@
+@* @if (selectedCar != null) *@
+@* { *@
+@*     <div class="modal show d-block" style="background: rgba(0,0,0,0.5)"> *@
+@*         <div class="modal-dialog modal-lg"> *@
+@*             <div class="modal-content"> *@
+@*                 <div class="modal-header"> *@
+@*                     <h5 class="modal-title">Edit Car</h5> *@
+@*                     <button type="button" class="btn-close" @onclick="CloseModal"></button> *@
+@*                 </div> *@
+@*                 <EditForm Model="@selectedCar" OnValidSubmit="HandleCarEdit"> *@
+@*                     <div class="modal-body"> *@
+@*                         <div class="row"> *@
+@*                             <div class="col-md-6"> *@
+@*                                 <div class="mb-3"> *@
+@*                                     <label class="form-label">Make</label> *@
+@*                                     <InputText class="form-control" @bind-Value="selectedCar.Make" /> *@
+@*                                 </div> *@
+@*                                 <div class="mb-3"> *@
+@*                                     <label class="form-label">Model</label> *@
+@*                                     <InputText class="form-control" @bind-Value="selectedCar.Model" /> *@
+@*                                 </div> *@
+@*                                 <div class="mb-3"> *@
+@*                                     <label class="form-label">Year</label> *@
+@*                                     <InputNumber class="form-control" @bind-Value="selectedCar.Year" /> *@
+@*                                 </div> *@
+@*                             </div> *@
+@*                             <div class="col-md-6"> *@
+@*                                 <div class="mb-3"> *@
+@*                                     <label class="form-label">Daily Rate</label> *@
+@*                                     <InputNumber class="form-control" @bind-Value="selectedCar.DailyRate" /> *@
+@*                                 </div> *@
+@*                                 <div class="mb-3"> *@
+@*                                     <label class="form-label">Transmission</label> *@
+@*                                     <InputSelect class="form-select" @bind-Value="selectedCar.TransmissionType"> *@
+@*                                         <option value="Automatic">Automatic</option> *@
+@*                                         <option value="Manual">Manual</option> *@
+@*                                     </InputSelect> *@
+@*                                 </div> *@
+@*                                 <div class="mb-3"> *@
+@*                                     <label class="form-label">Availability</label> *@
+@*                                     <InputSelect class="form-select" @bind-Value="selectedCar.AvailabilityStatus"> *@
+@*                                         <option value="1">Available</option> *@
+@*                                         <option value="0">Not Available</option> *@
+@*                                     </InputSelect> *@
+@*                                 </div> *@
+@*                             </div> *@
+@*                         </div> *@
+@*                     </div> *@
+@*                     <div class="modal-footer"> *@
+@*                         <button type="submit" class="btn btn-primary">Save Changes</button> *@
+@*                         <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button> *@
+@*                     </div> *@
+@*                 </EditForm> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* } *@
+
+@* @code { *@
+
+@* } *@

@@ -1,0 +1,159 @@
+﻿@* @page "/admin/users" *@
+@* @using IMGNCar.Components.Layout *@
+@* @layout AdminLayout *@
+@* @rendermode InteractiveServer *@
+@* @inject HttpClient Http *@
+@* @inject NavigationManager NavManager *@
+
+@* <h3>Users Overview</h3> *@
+
+@* @code { *@
+@*     private string activeTab = "users"; *@
+@*     private List<User> users = new(); *@
+@*     private List<Car> cars = new(); *@
+@*     private List<Booking> bookings = new(); *@
+@*     private User? selectedUser; *@
+@*     private Car? selectedCar; *@
+@*     private Booking? selectedBooking; *@
+@*     private string? errorMessage; *@
+
+@*     protected override async Task OnInitializedAsync() *@
+@*     { *@
+@*         try *@
+@*         { *@
+@*             users = await Http.GetFromJsonAsync<List<User>>("http://localhost:5087/api/users") ?? new(); *@
+@*             cars = await Http.GetFromJsonAsync<List<Car>>("http://localhost:5087/api/cars") ?? new(); *@
+@*             bookings = await Http.GetFromJsonAsync<List<Booking>>("http://localhost:5087/api/bookings") ?? new(); *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             errorMessage = $"Error loading data: {ex.Message}"; *@
+@*         } *@
+@*     } *@
+
+@*     // User CRUD Operations *@
+@*     private async Task DeleteUser(int userId) *@
+@*     { *@
+@*         try *@
+@*         { *@
+@*             var response = await Http.DeleteAsync($"http://localhost:5087/api/users/{userId}"); *@
+@*             if (response.IsSuccessStatusCode) *@
+@*             { *@
+@*                 users = users.Where(u => u.UserId != userId).ToList(); *@
+@*             } *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             errorMessage = $"Error deleting user: {ex.Message}"; *@
+@*         } *@
+@*     } *@
+
+@*     // Car CRUD Operations *@
+@*     private void OpenEditModal(User user) => selectedUser = user; *@
+
+@*     private void OpenCarEditModal(Car car) => selectedCar = car; *@
+
+@*     private void OpenBookingEditModal(Booking booking) => selectedBooking = booking; *@
+
+@*     private async Task HandleCarEdit() *@
+@*     { *@
+@*         try *@
+@*         { *@
+@*             var response = await Http.PutAsJsonAsync($"http://localhost:5087/api/cars/{selectedCar.CarId}", selectedCar); *@
+@*             if (response.IsSuccessStatusCode) *@
+@*             { *@
+@*                 var index = cars.FindIndex(c => c.CarId == selectedCar.CarId); *@
+@*                 cars[index] = selectedCar; *@
+@*                 CloseModal(); *@
+@*             } *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             errorMessage = $"Error updating car: {ex.Message}"; *@
+@*         } *@
+@*     } *@
+
+@*     private async Task DeleteCar(int carId) *@
+@*     { *@
+@*         try *@
+@*         { *@
+@*             var response = await Http.DeleteAsync($"http://localhost:5087/api/cars/{carId}"); *@
+@*             if (response.IsSuccessStatusCode) *@
+@*             { *@
+@*                 cars = cars.Where(c => c.CarId != carId).ToList(); *@
+@*             } *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             errorMessage = $"Error deleting car: {ex.Message}"; *@
+@*         } *@
+@*     } *@
+
+@*     // Booking CRUD Operations *@
+@*     private async Task DeleteBooking(int bookingId) *@
+@*     { *@
+@*         try *@
+@*         { *@
+@*             var response = await Http.DeleteAsync($"http://localhost:5087/api/bookings/{bookingId}"); *@
+@*             if (response.IsSuccessStatusCode) *@
+@*             { *@
+@*                 bookings = bookings.Where(b => b.BookingId != bookingId).ToList(); *@
+@*             } *@
+@*         } *@
+@*         catch (Exception ex) *@
+@*         { *@
+@*             errorMessage = $"Error deleting booking: {ex.Message}"; *@
+@*         } *@
+@*     } *@
+
+@*     private void CloseModal() *@
+@*     { *@
+@*         selectedUser = null; *@
+@*         selectedCar = null; *@
+@*         selectedBooking = null; *@
+@*     } *@
+
+@*     // Model Classes *@
+@*     public class User *@
+@*     { *@
+@*         public int UserId { get; set; } *@
+@*         public string Username { get; set; } = string.Empty; *@
+@*         public string PasswordHash { get; set; } = string.Empty; *@
+@*         public string Email { get; set; } = string.Empty; *@
+@*         public string PhoneNumber { get; set; } = string.Empty; *@
+@*         public string FirstName { get; set; } = string.Empty; *@
+@*         public string LastName { get; set; } = string.Empty; *@
+@*         public string DateOfBirth { get; set; } = string.Empty; *@
+@*     } *@
+
+@*     // Model Classes (FIXED TYPES) *@
+@*     public class Car *@
+@*     { *@
+@*         public int CarId { get; set; } *@
+@*         public string Make { get; set; } = string.Empty; *@
+@*         public string Model { get; set; } = string.Empty; *@
+@*         public int Year { get; set; } *@
+@*         public string Category { get; set; } = string.Empty; *@
+@*         public string TransmissionType { get; set; } = string.Empty; *@
+@*         public int AvailabilityStatus { get; set; } // Changed to int *@
+@*         public decimal DailyRate { get; set; } *@
+@*     } *@
+
+
+@*     public class Booking *@
+@*     { *@
+@*         public int BookingId { get; set; } *@
+@*         public int UserId { get; set; } *@
+@*         public int CarId { get; set; } *@
+@*         public string PickupLocation { get; set; } = string.Empty; *@
+@*         public string PickupDatetime { get; set; } = string.Empty; *@
+@*         public string DropoffLocation { get; set; } = string.Empty; *@
+@*         public string DropoffDatetime { get; set; }= string.Empty; *@
+@*         public string BookingDate { get; set; } = string.Empty; *@
+@*         public int RentalDays { get; set; } *@
+@*         public decimal TotalRentalPrice { get; set; } *@
+@*         public string BookingStatus { get; set; } = string.Empty; *@
+@*         public string CreatedAt { get; set; }= string.Empty; *@
+@*         public string UpdatedAt { get; set; } = string.Empty; *@
+@*     } *@
+@* } *@

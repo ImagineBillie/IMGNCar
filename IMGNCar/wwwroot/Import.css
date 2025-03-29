@@ -1,0 +1,454 @@
+﻿.auto-container {
+    position: static;
+    max-width: 1200px;
+    padding: 0px 15px;
+    margin: 0 auto;
+}
+
+.other-info {
+    position: relative;
+}
+
+    .other-info h3 {
+        font-size: 20px !important;
+        font-weight: 800;
+        text-transform: uppercase !important;
+    }
+
+    .other-info .info-box {
+        position: relative;
+    }
+
+        .other-info .info-box li {
+            position: relative;
+            padding-left: 60px;
+            color: #8d8d8d;
+            min-height: 50px;
+            font-size: 15px;
+            margin-bottom: 25px;
+        }
+
+            .other-info .info-box li:last-child {
+                margin-bottom: 0px;
+            }
+
+            .other-info .info-box li strong {
+                display: block;
+                color: #000000;
+                font-weight: 700;
+                font-size: 18px;
+                font-family: 'Raleway',sans-serif;
+            }
+
+            .other-info .info-box li .icon {
+                position: absolute;
+                left: 0px;
+                top: 50%;
+                margin-top: -25px;
+                height: 50px;
+                line-height: 50px;
+                color: #dee1e3;
+                font-size: 36px;
+            }
+
+    .other-info .text {
+        margin-bottom: 20px;
+        font-size: 15px;
+    }
+
+/*** 
+
+====================================================================
+	Default Section
+====================================================================
+
+***/
+.img-circle {
+    border-radius: 50%
+}
+.default-section {
+    position: relative;
+    padding: 40px 0px 40px;
+}
+
+    .default-section .column {
+        position: relative;
+        margin-bottom: 50px;
+    }
+
+    .default-section .text-primary {
+        color:limegreen !important;
+    }
+    .team-section .text-primary {
+        color: limegreen !important;
+    }
+
+    .default-section .image-column img {
+        display: inline-block;
+        width: 100%;
+    }
+
+.video-box {
+    position: relative;
+}
+
+    .video-box img {
+        display: block;
+        width: 100%;
+    }
+
+    .video-box .video-link {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        background: rgba(37,41,47,0.60);
+    }
+
+        .video-box .video-link .icon-outer {
+            position: absolute;
+            width: 100%;
+            height: 50px;
+            top: 50%;
+            margin-top: -25px;
+            text-align: center;
+        }
+
+            .video-box .video-link .icon-outer .fa {
+                position: relative;
+                display: inline-block;
+                font-size: 28px;
+                line-height: 70px;
+                padding-left: 8px;
+                width: 70px;
+                height: 70px;
+                text-align: center;
+                background: rgba(255,255,255,0.70);
+                color: #6ac610;
+                transition: all 500ms ease;
+            }
+
+        .video-box .video-link:hover .fa {
+            background: rgba(255,255,255,0.90);
+        }
+
+.default-text-column {
+    position: relative;
+}
+
+    .default-text-column.with-margin .inner-box {
+        padding-left: 10px;
+    }
+
+    .default-text-column h2 {
+        font-size: 36px;
+        font-weight: 800;
+        margin-bottom: 10px;
+        line-height: 1.2em;
+        text-transform: uppercase;
+    }
+
+    .default-text-column h3 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .default-text-column .bigger-text {
+        font-size: 18px;
+        font-weight: 300;
+        margin-bottom: 20px;
+    }
+
+    .default-text-column .text {
+        margin-bottom: 25px;
+        font-size: 15px;
+        color: #9d9d9d;
+    }
+
+    .default-text-column ul {
+        margin-bottom: 35px;
+    }
+
+.styled-list-one {
+    position: relative;
+}
+
+    .styled-list-one li {
+        line-height: 26px;
+        margin-bottom: 10px;
+        padding-left: 25px;
+        position: relative;
+        font-size: 16px;
+        color: #303030;
+        font-weight: 600;
+    }
+
+    .styled-list-one.normal-font li {
+        font-weight: normal;
+    }
+
+li.col-xs-12 {
+    padding-left: 40px;
+}
+
+.styled-list-one li::before {
+    color: #6ac610;
+    content: "\f105";
+    font-family: "FontAwesome";
+    font-size: 20px;
+    left: 0;
+    line-height: 24px;
+    position: absolute;
+    top: 0;
+    width: 20px;
+}
+
+li.col-xs-12:before {
+    left: 15px;
+}
+
+.styled-list-two {
+    position: relative;
+}
+
+    .styled-list-two li {
+        line-height: 26px;
+        margin-bottom: 10px;
+        padding-left: 30px;
+        position: relative;
+        font-size: 16px;
+        color: #303030;
+    }
+
+        .styled-list-two li::before {
+            color: #6ac610;
+            content: "\f00c";
+            font-family: "FontAwesome";
+            font-size: 20px;
+            left: 0;
+            font-weight: 300;
+            line-height: 24px;
+            position: absolute;
+            top: 0;
+            width: 20px;
+        }
+
+/*** 
+
+====================================================================
+	Team Section
+====================================================================
+
+***/
+
+.team-section {
+    position: relative;
+    background: #ffffff;
+    padding: 90px 0px 30px;
+}
+
+    .team-section.extended {
+        padding: 90px 0px 30px;
+    }
+
+    .team-section .team-member {
+        position: relative;
+        margin-bottom: 60px;
+    }
+
+    .team-section.extended .team-member {
+        margin-bottom: 60px;
+    }
+
+    .team-section .team-member .inner-box {
+        position: relative;
+        display: block;
+        background: #ffffff;
+        margin: 0 auto;
+    }
+
+    .team-section .team-member .image {
+        position: relative;
+    }
+
+        .team-section .team-member .image img {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+
+.member-details .team-member .image img {
+    position: relative;
+    display: block;
+    width: auto;
+}
+
+.team-section .team-member .member-info {
+    position: relative;
+    padding: 25px 0px 0px;
+}
+
+.member-details .team-member .member-info {
+    padding-top: 0px;
+}
+
+.team-section .team-member h3 {
+    font-size: 18px;
+    color: #2f2f31;
+    font-weight: 700;
+    text-transform: capitalize;
+    margin-bottom: 5px;
+}
+
+.member-details .team-member h3 {
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.team-section .team-member .designation {
+    font-size: 14px;
+    line-height: 20px;
+    color: #6bc611;
+    text-transform: capitalize;
+}
+
+.team-section .team-member .social-links {
+    position: relative;
+}
+
+    .team-section .team-member .social-links a {
+        position: relative;
+        display: inline-block;
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+        margin: 0px 3px 5px;
+        line-height: 32px;
+        border-radius: 50%;
+        text-align: center;
+        border: 1px solid #e1e1e1;
+        color: #c3c3c3;
+        transition: all 300ms ease;
+        -webkit-transition: all 300ms ease;
+        -ms-transition: all 300ms ease;
+        -o-transition: all 300ms ease;
+        -moz-transition: all 300ms ease;
+    }
+
+        .team-section .team-member .social-links a:hover {
+            background-color: #6bc611;
+            color: #ffffff;
+            border-color: #6bc611;
+        }
+
+.team-section .team-member .text {
+    position: relative;
+    color: #8d8d8d;
+    font-size: 15px;
+    padding: 15px 0px 10px;
+    border-bottom: 1px solid #e9e9e9;
+    margin-bottom: 25px;
+}
+
+.no-border {
+    border: none !important;
+}
+
+
+/*** 
+
+====================================================================
+	Contact Section Style
+====================================================================
+
+***/
+
+.contact-section {
+    position: relative;
+    padding: 90px 0px 10px;
+}
+
+    .contact-section .column {
+        margin-bottom: 60px;
+    }
+
+    .contact-section h2 {
+        font-size: 24px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 40px;
+        color: #2f2f2f;
+    }
+
+.contact-form .form-group {
+    position: relative;
+    margin-bottom: 26px;
+}
+
+    .contact-form .form-group .field-label {
+        position: relative;
+        font-size: 16px;
+        color: #202020;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .contact-form .form-group input {
+        position: relative;
+        display: block;
+        width: 100%;
+        line-height: 30px;
+        padding: 10px 20px;
+        color: #555555;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        -webkit-transition: all 500ms ease;
+        -ms-transition: all 500ms ease;
+        -moz-transition: all 500ms ease;
+        transition: all 500ms ease;
+    }
+
+    .contact-form .form-group textarea {
+        position: relative;
+        display: block;
+        width: 100%;
+        line-height: 30px;
+        padding: 11px 20px;
+        color: #555555;
+        height: 300px;
+        resize: none;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        -webkit-transition: all 500ms ease;
+        -ms-transition: all 500ms ease;
+        -moz-transition: all 500ms ease;
+        transition: all 500ms ease;
+    }
+
+        .contact-form .form-group input:focus,
+        .contact-form .form-group textarea:focus {
+            border-color: #6ac610;
+        }
+
+        .contact-form .form-group input.error,
+        .contact-form .form-group textarea.error {
+            border-color: #ff0000;
+        }
+
+    .contact-form .form-group label.error {
+        display: block;
+        padding: 10px 0px 0px 0px;
+        line-height: 24px;
+        text-transform: capitalize;
+        font-size: 15px;
+        color: #ff0000;
+        font-weight: 400;
+    }
+
+    .contact-form .form-group .theme-btn {
+        padding: 10px 40px;
+    }

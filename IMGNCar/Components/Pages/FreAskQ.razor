@@ -1,0 +1,97 @@
+﻿@page "/FreAskQ"
+@rendermode InteractiveServer
+@inject NavigationManager NavManager
+
+<PageTitle>FAQs</PageTitle>
+
+<h1 class="mb-4">Frequently Asked Questions</h1>
+
+<div class="accordion" id="faqAccordion">
+    <!-- Booking Process -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button @(_activeIndex == 1 ? "" : "collapsed")"
+                    @onclick="() => ToggleAnswer(1)">
+                How do I book a car?
+            </button>
+        </h2>
+        <div class="accordion-collapse collapse @(_activeIndex == 1 ? "show" : "")">
+            <div class="accordion-body">
+                <p>To book a car:</p>
+                <ol>
+                    <li>Browse our available cars</li>
+                    <li>Select your desired vehicle</li>
+                    <li>Fill out the booking form with your details</li>
+                    <li>Review and confirm your reservation</li>
+                </ol>
+                <a href="/browse" class="btn btn-sm btn-outline-primary">Browse Cars</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Requirements -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button @(_activeIndex == 2 ? "" : "collapsed")"
+                    @onclick="() => ToggleAnswer(2)">
+                What documents do I need to rent a car?
+            </button>
+        </h2>
+        <div class="accordion-collapse collapse @(_activeIndex == 2 ? "show" : "")">
+            <div class="accordion-body">
+                You'll need:
+                <ul>
+                    <li>Valid driver's license</li>
+                    <li>Credit card in the renter's name</li>
+                    <li>Government-issued ID</li>
+                    <li>Proof of insurance (if using personal insurance)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancellation Policy -->
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button @(_activeIndex == 3 ? "" : "collapsed")"
+                    @onclick="() => ToggleAnswer(3)">
+                Can I modify or cancel my reservation?
+            </button>
+        </h2>
+        <div class="accordion-collapse collapse @(_activeIndex == 3 ? "show" : "")">
+            <div class="accordion-body">
+                <p>Yes! You can modify or cancel your reservation up to 24 hours before pickup.</p>
+                <button class="btn btn-sm btn-outline-primary"
+                        @onclick='() => NavManager.NavigateTo("/contactus")'>
+                    Contact Support
+                </button>
+            </div>
+        </div>
+    </div>
+    <div style="margin-bottom:130px"></div>
+</div>
+
+@code {
+    private int _activeIndex = 0;
+
+    private void ToggleAnswer(int index)
+    {
+        _activeIndex = _activeIndex == index ? 0 : index;
+    }
+}
+
+<style>
+    h1, h2, h3 {
+        color: #1588c4;
+        font-weight: 600;
+    }
+    .accordion-button:not(.collapsed) {
+        background-color: #f8f9fa;
+        box-shadow: none;
+    }
+
+    .accordion-item {
+        margin-bottom: 10px;
+        border: 1px solid #dee2e6;
+    }
+</style>

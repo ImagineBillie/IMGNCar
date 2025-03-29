@@ -1,0 +1,67 @@
+﻿@page "/Browse"
+@rendermode InteractiveServer
+@inject NavigationManager NavManager
+@inject HttpClient Http
+
+<PageTitle>Browse</PageTitle>
+
+<div class="container mt-5">
+    <h1 class="mb-4"><u>Browse Cars</u></h1>
+    <div class="row">
+        @foreach (var car in cars)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="Media/Cars/@car.ImageUrl"
+                         class="card-img-top"
+                         alt="@car.Model"
+                         style="height: 200px; object-fit: cover;" />
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@car.Make @car.Model</h5>
+                        <p class="card-text">@car.Category &middot; @car.Year</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>@car.TransmissionType</span>
+                            <span class="fw-bold">RM @car.DailyRate /day</span>
+                        </div>
+                        <div class="mt-auto">
+                            <button class="btn btn-primary btn-sm mt-3"
+                                    @onclick='() => NavManager.NavigateTo($"/cars/{car.CarId}")'>
+                                More Info
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    // List to store cars from the API.
+    private List<Car> cars = new List<Car>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Change the URL if your API endpoint is different.
+        cars = await Http.GetFromJsonAsync<List<Car>>("http://localhost:5087/api/cars");
+    }
+
+    public class Car
+    {
+        public int CarId { get; set; }
+        public string Make { get; set; } = default!;
+        public string Model { get; set; } = default!;
+        public string Category { get; set; } = default!;
+        public int Year { get; set; }
+        public string TransmissionType { get; set; } = default!;
+        public decimal DailyRate { get; set; }
+        public string ImageUrl { get; set; } = default!;
+    }
+}
+
+<style>
+    h1, h2, h3 {
+        color: #1588c4;
+        font-weight: 600;
+    }
+</style>

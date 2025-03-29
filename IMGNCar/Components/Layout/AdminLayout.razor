@@ -1,0 +1,90 @@
+﻿@namespace IMGNCar.Components.Layout
+@inherits LayoutComponentBase
+
+<header>
+    <!-- Top Navigation Row -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <!-- Logo on the left -->
+            <a class="navbar-brand" href="/">
+                <img src="Media/logo.png" alt="Logo" style="height: 100px;">
+            </a>
+
+            <!-- Navigation links in the center -->
+            <div class="collapse navbar-collapse justify-content-center" style="padding-right:100px" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <NavLink class="nav-link nav-link-airbnb" href="/admin/home" Match="NavLinkMatch.All">Home</NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link nav-link-airbnb" href="/admin/cars">Cars</NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link nav-link-airbnb" href="/admin/users">Users</NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link nav-link-airbnb" href="/admin/booked">Booked</NavLink>
+                    </li>
+                    @* <li class="nav-item"> *@
+                    @*     <NavLink class="nav-link nav-link-airbnb" href="/admin/feedback">User Feedback</NavLink> *@
+                    @* </li> *@
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<hr />
+
+<!-- Render page content -->
+<div class="container mt-4">
+    @Body
+</div>
+
+
+@* Footer.razor *@
+<footer class="main-footer">
+    <hr />
+    <div class="container py-4">
+        <div class="row">
+            <!-- Left Column: Logo & Contact Info -->
+            <div class="col-md-6 mb-4 mb-md-0">
+                <div class="footer-widget about-widget">
+                    <div class="logo mb-3">
+                        <a href="/">
+                            <img src="Media/logo.png" alt="Logo" class="img-fluid" style="max-width: 150px;">
+                        </a>
+                    </div>
+                    <ul class="contact-info list-unstyled">
+                        <li>
+                            <span class="icon fa fa-map-marker me-2"></span>
+                            Jalan Ketari, 28700 Bentong, Pahang Darul Makmur
+                        </li>
+                        <li>
+                            <span class="icon fa fa-phone me-2"></span>
+                            1300-88-1148
+                        </li>
+                        <li>
+                            <span class="icon fa fa-envelope me-2"></span>
+                            Support@imagine.gg
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer Bottom -->
+    <div class="footer-bottom py-2 bg-light">
+        <div class="container text-center">
+            <p class="mb-0 small">
+                Copyright 2025 &copy;
+                <a href="#">Imagine Sdn Bhd</a>
+            </p>
+        </div>
+    </div>
+</footer>
+
+
+@code {
+
+}

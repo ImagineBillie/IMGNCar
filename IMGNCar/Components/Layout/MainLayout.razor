@@ -1,0 +1,159 @@
+﻿@inherits LayoutComponentBase
+@inject SearchState SearchState
+@inject NavigationManager NavManager
+@inject IAuthenticationService AuthService
+
+<header>
+    <!-- Top Navigation Row -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <!-- Logo on the left -->
+            <a class="navbar-brand" href="/">
+                <img src="Media/logo.png" alt="Logo" style="height: 100px;">
+            </a>
+
+            <!-- Navigation links in the center -->
+            <div class="collapse navbar-collapse justify-content-center" style="padding-right:100px" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <NavLink class="nav-link nav-link-airbnb" href="/" Match="NavLinkMatch.All">Home</NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link nav-link-airbnb" href="/about">About</NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link nav-link-airbnb" href="/browse">Browse</NavLink>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Profile dropdown on the right -->
+            <div class="dropdown">
+                <button class="btn dropdown-toggle d-flex align-items-center dropdown-button-custom"
+                        type="button"
+                        id="profileMenuButton"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    <!-- First circle with a list icon -->
+                    <span class="d-flex align-items-center justify-content-center rounded-circle"
+                          style="width: 40px; height: 40px;">
+                        <i class="bi bi-list"></i>
+                    </span>
+                    <!-- Second circle with the person icon -->
+                    <span class="ms-2 d-flex align-items-center justify-content-center rounded-circle"
+                          style="background-color: gray; width: 40px; height: 40px;">
+                        <i class="bi bi-person-fill text-white"></i>
+                    </span>
+                </button>
+
+                @* <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenuButton"> *@
+                @*     <li><a class="dropdown-item" href="/signup">Sign Up</a></li> *@
+                @*     <li><a class="dropdown-item" href="/login">Login</a></li> *@
+                @*     <li><hr class="dropdown-divider" /></li> *@
+                @*     <li><a class="dropdown-item" href="/FreAskQ">FAQs</a></li> *@
+                @*     <li><a class="dropdown-item" href="/privacy">Privacy</a></li> *@
+                @*     <li><a class="dropdown-item" href="/Feedback">Feedback</a></li> *@
+                @* </ul> *@
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenuButton">
+                    <li><a class="dropdown-item" href="/profile">My Account</a></li>
+                    <li><a class="dropdown-item" href="/user/booking">My Booking</a></li>
+                    <li><a class="dropdown-item btn btn-danger" href="/login">Logout</a></li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item" href="/FreAskQ">FAQs</a></li>
+                    <li><a class="dropdown-item" href="/privacy">Privacy</a></li>
+                    <li><a class="dropdown-item" href="/Feedback">Feedback</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    @* <AuthorizeView> *@
+    @*     <Authorized> *@
+    @*         <button @onclick="Logout" class="btn btn-link">Logout</button> *@
+    @*     </Authorized> *@
+    @*     <NotAuthorized> *@
+    @*         <a href="/login" class="btn btn-link">Login</a> *@
+    @*     </NotAuthorized> *@
+    @* </AuthorizeView> *@
+    <!-- Search Bar in Header -->
+    @* <div class="header-container"> *@
+    @*     <div class="search-bar"> *@
+    @*         <div class="input-group"> *@
+    @*             <input type="text" *@
+    @*                    class="form-control" *@
+    @*                    placeholder="Search cars..." *@
+    @*                    @bind="SearchState.SearchTerm" *@
+    @*                    @bind:event="oninput" *@
+    @*                    @onkeyup="HandleKeyUp" /> *@
+    @*             <button class="btn btn-primary" @onclick="Search"> *@
+    @*                 <i class="fas fa-search"></i> *@
+    @*             </button> *@
+    @*         </div> *@
+    @*     </div> *@
+    @* </div> *@
+</header>
+
+
+<hr />
+<!-- Render page content -->
+<div class="container mt-4">
+    @Body
+</div>
+
+<Footer />
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    // private async Task HandleKeyUp(KeyboardEventArgs e)
+    // {
+    //     if (e.Key == "Enter")
+    //     {
+    //         await Search();
+    //     }
+    // }
+
+    // private async Task Search()
+    // {
+    //     if (!string.IsNullOrWhiteSpace(SearchState.SearchTerm))
+    //     {
+    //         if (NavManager.Uri.Contains("/cars") == false)
+    //         {
+    //             NavManager.NavigateTo($"/cars?search={Uri.EscapeDataString(SearchState.SearchTerm)}");
+    //         }
+    //         else
+    //         {
+    //             SearchState.NotifyStateChanged();
+    //         }
+    //     }
+    // }
+}
+<style>
+    .header-container {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .search-bar {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .input-group {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-control {
+        border-radius: 25px 0 0 25px !important;
+        padding-left: 1.5rem;
+    }
+
+    .btn-primary {
+        border-radius: 0 25px 25px 0;
+        padding: 0.375rem 1.5rem;
+    }
+</style>
