@@ -1,0 +1,166 @@
+﻿@page "/admin/feedback"
+@using IMGNCar.Components.Layout
+@layout AdminLayout
+@rendermode InteractiveServer
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<PageTitle>Feedback Reports</PageTitle>
+
+<div class="container py-5">
+    <h1 class="mb-4" style="padding-left:15px"><u>Customer Feedback</u></h1>
+
+    <div class="row">
+        <div class="col-md-12 p-4">
+            @if (errorMessage != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @errorMessage
+                    <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+                </div>
+            }
+            else
+            {
+                <div class="mb-4">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>User Details</th>
+                                <th>Ratings</th>
+                                <th>Comments</th>
+                                <th>Submission Date</th>
+                                <th>Would Rent Again</th>
+                                <th>Would Recommend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var feedback in feedbacks.OrderByDescending(f => f.FeedbackSubmissionDate))
+                            {
+                                var user = users.FirstOrDefault(u => u.UserId == feedback.UserId);
+
+                                <tr>
+                                    <td>
+                                        @if (user != null)
+                                        {
+                                            <div>
+                                                <strong>@user.FirstName @user.LastName</strong><br>
+                                                @user.Email<br>
+                                                @user.PhoneNumber<br>
+                                                Age: @GetAge(user.DateOfBirth)
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">User not found</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="small">
+                                            <div>Overall: @feedback.OverallSatisfaction/5</div>
+                                            <div>Car Condition: @feedback.CarConditionRating/5</div>
+                                            <div>Pickup Process: @feedback.PickupProcessRating/5</div>
+                                            <div>Dropoff Process: @feedback.DropoffProcessRating/5</div>
+                                            <div>Customer Service: @feedback.CustomerServiceRating/5</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(feedback.Comments))
+                                        {
+                                            <div class="feedback-comments">
+                                                @feedback.Comments
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No comments</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @feedback.FeedbackSubmissionDate.ToString("dd MMM yyyy HH:mm")
+                                    </td>
+                                    <td>
+                                        <span class="badge @(feedback.WouldRentAgain ? "bg-success" : "bg-danger")">
+                                            @(feedback.WouldRentAgain ? "Yes" : "No")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @(feedback.WouldRecommend ? "bg-success" : "bg-danger")">
+                                            @(feedback.WouldRecommend ? "Yes" : "No")
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Feedback> feedbacks = new();
+    private List<User> users = new();
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            feedbacks = await Http.GetFromJsonAsync<List<Feedback>>("http://localhost:5087/api/feedbacks") ?? new();
+            users = await Http.GetFromJsonAsync<List<User>>("http://localhost:5087/api/users") ?? new();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading data: {ex.Message}";
+        }
+    }
+
+    private int GetAge(DateTime dob) => (int)((DateTime.Now - dob).TotalDays / 365.25);
+
+    public class Feedback
+    {
+        public int FeedbackId { get; set; }
+        public int BookingId { get; set; }
+        public int UserId { get; set; }
+        public byte OverallSatisfaction { get; set; }
+        public byte CarConditionRating { get; set; }
+        public byte PickupProcessRating { get; set; }
+        public byte DropoffProcessRating { get; set; }
+        public byte CustomerServiceRating { get; set; }
+        public string Comments { get; set; } = string.Empty;
+        public bool WouldRentAgain { get; set; }
+        public bool WouldRecommend { get; set; }
+        public DateTime FeedbackSubmissionDate { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class User
+    {
+        public int UserId { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public DateTime DateOfBirth { get; set; }
+    }
+}
+
+<style>
+    .feedback-comments {
+        max-width: 300px;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .badge {
+        font-size: 0.9em;
+        padding: 0.5em 0.75em;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>

@@ -5,8 +5,479 @@
 @inject HttpClient Http
 @inject NavigationManager NavManager
 
-<h3>Booked Cars</h3>
+<PageTitle>Booked</PageTitle>
+
+<div class="container py-5">
+    <h1 class="mb-4" style="padding-left:15px"><u>Bookings list</u></h1>
+
+    <div class="row">
+        <div class="col-md-12 p-4">
+            @if (successMessage != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @successMessage
+                    <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+                </div>
+            }
+            @if (errorMessage != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @errorMessage
+                    <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+                </div>
+            }
+
+            <div class="mb-3">
+                <button class="btn btn-primary" @onclick="ShowAddModal">Add New Booking</button>
+                <button class="btn btn-secondary" @onclick="ToggleSort">Sort by Date (@(sortAscending ? "Oldest" : "Newest"))</button>
+            </div>
+
+            <!-- Bookings Table -->
+            <div class="mb-4">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>User Details</th>
+                            <th>Car Details</th>
+                            <th>Pickup Date</th>
+                            <th>Return Date</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var booking in sortedBookings)
+                        {
+                            var car = cars.FirstOrDefault(c => c.CarId == booking.CarId);
+                            var user = users.FirstOrDefault(u => u.UserId == booking.UserId);
+
+                            <tr>
+                                <td>
+                                    @if (user != null)
+                                    {
+                                        <div>
+                                            <strong>@user.FirstName @user.LastName</strong><br>
+                                            @user.Email<br>
+                                            @user.PhoneNumber<br>
+                                            Age: @GetAge(user.DateOfBirth)
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    @if (car != null)
+                                    {
+                                        <div>
+                                            <strong>@car.Make @car.Model</strong><br>
+                                            @car.Year | @car.Category | @car.TransmissionType
+                                        </div>
+                                    }
+                                </td>
+                                <td>@booking.PickupDatetime.ToString("dd MMM yyyy")</td>
+                                <td>@booking.DropoffDatetime.ToString("dd MMM yyyy")</td>
+                                <td>RM @booking.TotalRentalPrice.ToString("N2")</td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(booking.BookingStatus)">
+                                        @booking.BookingStatus
+                                    </span>
+                                </td>
+                                <td>@DateTime.Parse(booking.CreatedAt).ToString("dd MMM yyyy")</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" @onclick="@(() => ShowEditModal(booking))">Edit</button>
+                                    <button class="btn btn-sm btn-danger" @onclick="@(() => ShowDeleteModal(booking))">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Booking Modal -->
+@if (showAddModal)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Booking</h5>
+                    <button type="button" class="btn-close" @onclick="CloseAddModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">User*</label>
+                                <select class="form-select" @bind="newBooking.UserId">
+                                    <option value="">Select User</option>
+                                    @foreach (var user in users)
+                                    {
+                                        <option value="@user.UserId">@user.FirstName @user.LastName (@user.Email)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Car*</label>
+                                <select class="form-select" @bind="newBooking.CarId">
+                                    <option value="">Select Car</option>
+                                    @foreach (var car in cars.Where(c => c.AvailabilityStatus))
+                                    {
+                                        <option value="@car.CarId">@car.Make @car.Model (RM @car.DailyRate.ToString("N2")/day)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Pickup Date*</label>
+                                <input type="datetime-local" class="form-control"
+                                       @bind="newBooking.PickupDatetime"
+                                       min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Return Date*</label>
+                                <input type="datetime-local" class="form-control"
+                                       @bind="newBooking.DropoffDatetime"
+                                       min="@newBooking.PickupDatetime.AddHours(1).ToString("yyyy-MM-ddTHH:mm")" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Pickup Location*</label>
+                                <input class="form-control" @bind="newBooking.PickupLocation" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Return Location*</label>
+                                <input class="form-control" @bind="newBooking.DropoffLocation" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Status*</label>
+                                <select class="form-select" @bind="newBooking.BookingStatus">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseAddModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="AddBooking">Create Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Edit Booking Modal -->
+@if (showEditModal)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Booking</h5>
+                    <button type="button" class="btn-close" @onclick="CloseEditModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">User*</label>
+                                <select class="form-select" @bind="editBooking.UserId">
+                                    <option value="">Select User</option>
+                                    @foreach (var user in users)
+                                    {
+                                        <option value="@user.UserId">@user.FirstName @user.LastName (@user.Email)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Car*</label>
+                                <select class="form-select" @bind="editBooking.CarId">
+                                    <option value="">Select Car</option>
+                                    @foreach (var car in cars.Where(c => c.AvailabilityStatus))
+                                    {
+                                        <option value="@car.CarId">@car.Make @car.Model (RM @car.DailyRate.ToString("N2")/day)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Pickup Date*</label>
+                                <input type="datetime-local" class="form-control"
+                                       @bind="editBooking.PickupDatetime"
+                                       min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Return Date*</label>
+                                <input type="datetime-local" class="form-control"
+                                       @bind="editBooking.DropoffDatetime"
+                                       min="@editBooking.PickupDatetime.AddHours(1).ToString("yyyy-MM-ddTHH:mm")" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Pickup Location*</label>
+                                <input class="form-control" @bind="editBooking.PickupLocation" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Return Location*</label>
+                                <input class="form-control" @bind="editBooking.DropoffLocation" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Status*</label>
+                                <select class="form-select" @bind="editBooking.BookingStatus">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+
+                            <input hidden type="datetime-local" @bind="editBooking.BookingDate"/>
+                            <input hidden @bind="editBooking.RentalDays" />
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseEditModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="UpdateBooking">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Delete Confirmation Modal -->
+@if (showDeleteModal)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Booking</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDeleteModal"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this booking?
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseDeleteModal">Cancel</button>
+                    <button class="btn btn-danger" @onclick="DeleteBooking">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
+    private List<Car> cars = new();
+    private List<Booking> bookings = new();
+    private List<User> users = new();
+    private bool sortAscending = false;
+    private string? errorMessage;
+    private string? successMessage;
 
+    // Modals
+    private bool showAddModal = false;
+    private bool showEditModal = false;
+    private bool showDeleteModal = false;
+    private Booking newBooking = new();
+    private Booking editBooking = new();
+    private Booking? bookingToDelete;
+
+    private IEnumerable<Booking> sortedBookings => sortAscending
+        ? bookings.OrderBy(b => DateTime.Parse(b.CreatedAt))
+        : bookings.OrderByDescending(b => DateTime.Parse(b.CreatedAt));
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            cars = await Http.GetFromJsonAsync<List<Car>>("http://localhost:5087/api/cars") ?? new();
+            bookings = await Http.GetFromJsonAsync<List<Booking>>("http://localhost:5087/api/bookings") ?? new();
+            users = await Http.GetFromJsonAsync<List<User>>("http://localhost:5087/api/users") ?? new();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading data: {ex.Message}";
+        }
+    }
+
+    private void ToggleSort() => sortAscending = !sortAscending;
+
+    private int GetAge(DateTime dob) => (int)((DateTime.Now - dob).TotalDays / 365.25);
+
+    private string GetStatusBadgeClass(string status) => status.ToLower() switch
+    {
+        "confirmed" => "bg-success",
+        "pending" => "bg-warning",
+        "cancelled" => "bg-danger",
+        "completed" => "bg-primary",
+        _ => "bg-secondary"
+    };
+
+    // CRUD Operations
+    private void ShowAddModal() => showAddModal = true;
+    private void CloseAddModal() => showAddModal = false;
+
+    private void ShowEditModal(Booking booking)
+    {
+        editBooking = new Booking
+            {
+                BookingId = booking.BookingId,
+                UserId = booking.UserId,
+                CarId = booking.CarId,
+                PickupLocation = booking.PickupLocation,
+                PickupDatetime = booking.PickupDatetime,
+                DropoffLocation = booking.DropoffLocation,
+                DropoffDatetime = booking.DropoffDatetime,
+                BookingDate = booking.BookingDate,
+                RentalDays = booking.RentalDays,
+                BookingStatus = booking.BookingStatus,
+                TotalRentalPrice = booking.TotalRentalPrice,
+                CreatedAt = booking.CreatedAt
+            };
+        showEditModal = true;
+    }
+
+    private void CloseEditModal() => showEditModal = false;
+
+    private void ShowDeleteModal(Booking booking)
+    {
+        bookingToDelete = booking;
+        showDeleteModal = true;
+    }
+
+    private void CloseDeleteModal()
+    {
+        showDeleteModal = false;
+        bookingToDelete = null;
+    }
+
+    private async Task AddBooking()
+    {
+        try
+        {
+            newBooking.CreatedAt = DateTime.Now.ToString("o");
+            var response = await Http.PostAsJsonAsync("http://localhost:5087/api/bookings", newBooking);
+
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "Booking created successfully!";
+                await LoadData();
+                CloseAddModal();
+                newBooking = new Booking();
+                StartMessageTimer();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error creating booking: {ex.Message}";
+        }
+    }
+
+    private async Task UpdateBooking()
+    {
+        try
+        {
+            editBooking.UpdatedAt = DateTime.Now.ToString("o");
+            var response = await Http.PutAsJsonAsync($"http://localhost:5087/api/bookings/{editBooking.BookingId}", editBooking);
+
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "Booking updated successfully!";
+                await LoadData();
+                CloseEditModal();
+                StartMessageTimer();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error updating booking: {ex.Message}";
+        }
+    }
+
+    private async Task DeleteBooking()
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"http://localhost:5087/api/bookings/{bookingToDelete?.BookingId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "Booking deleted successfully!";
+                await LoadData();
+                CloseDeleteModal();
+                StartMessageTimer();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting booking: {ex.Message}";
+        }
+    }
+
+    private void StartMessageTimer()
+    {
+        var timer = new Timer(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                successMessage = null;
+                errorMessage = null;
+                StateHasChanged();
+            });
+        }, null, 5000, Timeout.Infinite);
+    }
+
+    // Model Classes
+    public class Car
+    {
+        public int CarId { get; set; }
+        public string Make { get; set; } = string.Empty;
+        public string Model { get; set; } = string.Empty;
+        public int Year { get; set; }
+        public string Category { get; set; } = string.Empty;
+        public string TransmissionType { get; set; } = string.Empty;
+        public bool AvailabilityStatus { get; set; }
+        public decimal DailyRate { get; set; }
+    }
+
+    public class User
+    {
+        public int UserId { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public DateTime DateOfBirth { get; set; }
+    }
+
+    public class Booking
+    {
+        public int BookingId { get; set; }
+        public int UserId { get; set; }
+        public int CarId { get; set; }
+        public string PickupLocation { get; set; } = string.Empty;
+        public DateTime PickupDatetime { get; set; } = DateTime.Now;
+        public string DropoffLocation { get; set; } = string.Empty;
+        public DateTime DropoffDatetime { get; set; } = DateTime.Now.AddDays(1);
+        public DateTime BookingDate { get; set; }
+        public int RentalDays { get; set; } //later
+        public string BookingStatus { get; set; } = "Pending";
+        public decimal TotalRentalPrice { get; set; }
+        public string CreatedAt { get; set; } = string.Empty;
+        public string UpdatedAt { get; set; } = string.Empty;
+    }
 }

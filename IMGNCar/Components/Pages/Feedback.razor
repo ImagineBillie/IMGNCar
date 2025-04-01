@@ -8,7 +8,14 @@
 
 @if (!submitted)
 {
-    <h1 class="mb-4">Feedback Form</h1>
+    <div class="feedback-header mb-5">
+        <h1 class="mb-4">Rental Experience Feedback</h1>
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Please take a moment to share your experience with us. Your feedback helps us improve our services.
+        </div>
+    </div>
+
     @if (!string.IsNullOrEmpty(errorMessage))
     {
         <div class="alert alert-danger mb-4">@errorMessage</div>
@@ -17,14 +24,15 @@
         <DataAnnotationsValidator />
         <ValidationSummary />
 
-        <!-- Hidden Fields (Set values programmatically instead) -->
+        <!-- Hidden Fields -->
         <input type="hidden" @bind="newFeedback.BookingId" />
         <input type="hidden" @bind="newFeedback.UserId" />
 
         <!-- Ratings Section -->
-        <div class="mb-4">
-            <div class="form-group">
-                <label>Overall Satisfaction</label>
+        <div class="row mb-4">
+            <!-- Row 1 -->
+            <div class="col-md-6 form-group mb-4">
+                <label class="form-label">1. Overall Satisfaction</label>
                 <InputSelect class="form-select" @bind-Value="newFeedback.OverallSatisfaction">
                     <option value="">Select Rating (1-5)</option>
                     @for (int i = 1; i <= 5; i++)
@@ -35,8 +43,8 @@
                 <ValidationMessage For="@(() => newFeedback.OverallSatisfaction)" />
             </div>
 
-            <div class="form-group mt-3">
-                <label>Car Condition</label>
+            <div class="col-md-6 form-group mb-4">
+                <label class="form-label">2. Car Condition</label>
                 <InputSelect class="form-select" @bind-Value="newFeedback.CarConditionRating">
                     <option value="">Select Rating (1-5)</option>
                     @for (int i = 1; i <= 5; i++)
@@ -47,8 +55,9 @@
                 <ValidationMessage For="@(() => newFeedback.CarConditionRating)" />
             </div>
 
-            <div class="form-group mt-3">
-                <label>Pick-Up Process</label>
+            <!-- Row 2 -->
+            <div class="col-md-6 form-group mb-4">
+                <label class="form-label">3. Pick-Up Process</label>
                 <InputSelect class="form-select" @bind-Value="newFeedback.PickupProcessRating">
                     <option value="">Select Rating (1-5)</option>
                     @for (int i = 1; i <= 5; i++)
@@ -59,8 +68,8 @@
                 <ValidationMessage For="@(() => newFeedback.PickupProcessRating)" />
             </div>
 
-            <div class="form-group mt-3">
-                <label>Drop-Off Process</label>
+            <div class="col-md-6 form-group mb-4">
+                <label class="form-label">4. Drop-Off Process</label>
                 <InputSelect class="form-select" @bind-Value="newFeedback.DropoffProcessRating">
                     <option value="">Select Rating (1-5)</option>
                     @for (int i = 1; i <= 5; i++)
@@ -71,8 +80,9 @@
                 <ValidationMessage For="@(() => newFeedback.DropoffProcessRating)" />
             </div>
 
-            <div class="form-group mt-3">
-                <label>Customer Service</label>
+            <!-- Row 3 -->
+            <div class="col-md-6 form-group mb-4">
+                <label class="form-label">5. Customer Service</label>
                 <InputSelect class="form-select" @bind-Value="newFeedback.CustomerServiceRating">
                     <option value="">Select Rating (1-5)</option>
                     @for (int i = 1; i <= 5; i++)
@@ -85,44 +95,52 @@
         </div>
 
         <!-- Comments -->
-        <div class="form-group">
-            <label>Comments</label>
+        <div class="form-group mb-4">
+            <label class="form-label">6. Additional Comments</label>
             <InputTextArea class="form-control"
                            @bind-Value="newFeedback.Comments"
-                           rows="3" />
+                           rows="4"
+                           placeholder="Please share any additional thoughts or suggestions..."></InputTextArea>
             <ValidationMessage For="@(() => newFeedback.Comments)" />
         </div>
 
         <!-- Recommendations -->
-        <div class="form-group mt-4">
-            <label>Would you rent from us again?</label>
-            <InputRadioGroup @bind-Value="newFeedback.WouldRentAgain">
-                <div class="form-check form-check-inline">
-                    <InputRadio Value="true" class="form-check-input" />
-                    <label class="form-check-label">Yes</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <InputRadio Value="false" class="form-check-input" />
-                    <label class="form-check-label">No</label>
-                </div>
-            </InputRadioGroup>
+        <div class="row mb-4">
+            <div class="col-md-6 form-group">
+                <label class="form-label">7. Would you rent from us again?</label>
+                <InputRadioGroup @bind-Value="newFeedback.WouldRentAgain">
+                    <div class="form-check form-check-inline">
+                        <InputRadio Value="true" class="form-check-input" />
+                        <label class="form-check-label">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <InputRadio Value="false" class="form-check-input" />
+                        <label class="form-check-label">No</label>
+                    </div>
+                </InputRadioGroup>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label class="form-label">8. Would you recommend to friends?</label>
+                <InputRadioGroup @bind-Value="newFeedback.WouldRecommend">
+                    <div class="form-check form-check-inline">
+                        <InputRadio Value="true" class="form-check-input" />
+                        <label class="form-check-label">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <InputRadio Value="false" class="form-check-input" />
+                        <label class="form-check-label">No</label>
+                    </div>
+                </InputRadioGroup>
+            </div>
         </div>
 
-        <div class="form-group mt-4">
-            <label>Would you recommend to your friends?</label>
-            <InputRadioGroup @bind-Value="newFeedback.WouldRecommend">
-                <div class="form-check form-check-inline">
-                    <InputRadio Value="true" class="form-check-input" />
-                    <label class="form-check-label">Yes</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <InputRadio Value="false" class="form-check-input" />
-                    <label class="form-check-label">No</label>
-                </div>
-            </InputRadioGroup>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-paper-plane me-2"></i>
+                Submit Feedback
+            </button>
         </div>
-
-        <button type="submit" class="btn btn-primary mt-4">Submit Feedback</button>
     </EditForm>
 }
 else
@@ -226,3 +244,35 @@ else
         public DateTime UpdatedAt { get; set; }
     }
 }
+
+<style>
+    .feedback-header {
+        background-color: #f8f9fa;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-select {
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .btn-primary {
+        padding: 0.75rem 2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+    }
+
+    .thank-you-message {
+        background-color: #f8f9fa;
+        border-radius: 1rem;
+        padding: 3rem;
+    }
+</style>

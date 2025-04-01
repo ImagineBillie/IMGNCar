@@ -8,6 +8,8 @@
 @inject NavigationManager NavManager
 @rendermode InteractiveServer
 
+<PageTitle>Login</PageTitle>
+
 <div class="container d-flex flex-column justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card shadow-sm" style="max-width: 400px; width: 100%;">
         <div class="card-body p-4">
@@ -33,9 +35,8 @@
             </div>
 
             <div class="d-flex justify-content-between align-items-center">
-                <button class="btn btn-primary" @onclick="LoginUser">Login</button>
-                <!-- Signup button -->
                 <button class="btn btn-secondary" @onclick="GoToSignUp">Sign Up</button>
+                <button class="btn btn-primary" @onclick="LoginUser">Login</button>
             </div>
         </div>
     </div>

@@ -9,58 +9,79 @@
 
 <PageTitle>Sign Up</PageTitle>
 
-<div class="container mt-5">
-    <h2 class="mb-4">Sign Up</h2>
-    <EditForm Model="@newUser" OnValidSubmit="HandleSignUp"
-              @attributes='new Dictionary<string, object> { { "FormName", "SignupForm" } }'>
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+<div class="container d-flex flex-column justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card shadow-sm" style="max-width: 60%; width: 100%;">
+        <div class="card-body p-4">
+            <!-- Logo -->
+            <div class="text-center mb-4">
+                <img src="Media/logo.png" alt="Logo" style="max-height: 80px;" />
+            </div>
 
-        <div class="mb-3">
-            <label for="usernameInput" class="form-label">Username</label>
-            <InputText id="usernameInput" class="form-control" @bind-Value="newUser.Username" placeholder="Enter your username" />
+            <h3 class="card-title text-center mb-4">Create Account</h3>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
+
+            <EditForm Model="@newUser" OnValidSubmit="HandleSignUp">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger small" />
+
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <InputText class="form-control" @bind-Value="newUser.Username" />
+                    <ValidationMessage For="@(() => newUser.Username)" class="text-danger small" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <InputText type="password" class="form-control" @bind-Value="newUser.Password" />
+                    <ValidationMessage For="@(() => newUser.Password)" class="text-danger small" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <InputText type="email" class="form-control" @bind-Value="newUser.Email" />
+                    <ValidationMessage For="@(() => newUser.Email)" class="text-danger small" />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">First Name</label>
+                        <InputText class="form-control" @bind-Value="newUser.FirstName" />
+                        <ValidationMessage For="@(() => newUser.FirstName)" class="text-danger small" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Last Name</label>
+                        <InputText class="form-control" @bind-Value="newUser.LastName" />
+                        <ValidationMessage For="@(() => newUser.LastName)" class="text-danger small" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <InputText class="form-control" @bind-Value="newUser.PhoneNumber" />
+                    <ValidationMessage For="@(() => newUser.PhoneNumber)" class="text-danger small" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Date of Birth</label>
+                    <InputDate class="form-control" @bind-Value="newUser.DateOfBirth" />
+                    <ValidationMessage For="@(() => newUser.DateOfBirth)" class="text-danger small" />
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="button" class="btn btn-outline-secondary" @onclick='() => NavManager.NavigateTo("/login")'>
+                        Back to Login
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Sign Up
+                    </button>
+                </div>
+            </EditForm>
         </div>
-
-        <div class="mb-3">
-            <label for="passwordInput" class="form-label">Password</label>
-            <InputText id="passwordInput" type="password" class="form-control" @bind-Value="newUser.Password" placeholder="Password" />
-        </div>
-
-        <div class="mb-3">
-            <label for="emailInput" class="form-label">Email address</label>
-            <InputText id="emailInput" type="email" class="form-control" @bind-Value="newUser.Email" placeholder="Enter email" />
-            <small class="form-text text-muted">
-                We'll never share your email with anyone else.
-            </small>
-        </div>
-
-        <div class="mb-3">
-            <label for="phoneInput" class="form-label">Phone Number</label>
-            <InputText id="phoneInput" class="form-control" @bind-Value="newUser.PhoneNumber" placeholder="e.g. 0123456789" />
-        </div>
-
-        <div class="mb-3">
-            <label for="firstNameInput" class="form-label">First Name</label>
-            <InputText id="firstNameInput" class="form-control" @bind-Value="newUser.FirstName" />
-        </div>
-
-        <div class="mb-3">
-            <label for="lastNameInput" class="form-label">Last Name</label>
-            <InputText id="lastNameInput" class="form-control" @bind-Value="newUser.LastName" />
-        </div>
-
-        <div class="mb-3">
-            <label for="dobInput" class="form-label">Date of Birth</label>
-            <InputDate id="dobInput" class="form-control" @bind-Value="newUser.DateOfBirth" />
-        </div>
-
-        <button type="submit" class="btn btn-primary">Sign Up</button>
-    </EditForm>
-
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <div class="alert alert-danger mt-3">@errorMessage</div>
-    }
+    </div>
 </div>
 
 @code {
@@ -115,15 +136,20 @@
         [MaxLength(100)]
         public string Email { get; set; } = "";
 
+
+        [Required(ErrorMessage = "Phone Number is required.")]
         [MaxLength(20)]
         public string PhoneNumber { get; set; } = "";
 
+        [Required(ErrorMessage = "First name is required.")]
         [MaxLength(50)]
         public string FirstName { get; set; } = "";
 
+        [Required(ErrorMessage = "Last name is required.")]
         [MaxLength(50)]
         public string LastName { get; set; } = "";
 
+        [Required(ErrorMessage = "Date is required.")]
         public DateTime? DateOfBirth { get; set; }
     }
 }

@@ -1,159 +1,375 @@
-﻿@* @page "/admin/users" *@
-@* @using IMGNCar.Components.Layout *@
-@* @layout AdminLayout *@
-@* @rendermode InteractiveServer *@
-@* @inject HttpClient Http *@
-@* @inject NavigationManager NavManager *@
+﻿@page "/admin/users"
+@using IMGNCar.Components.Layout
+@layout AdminLayout
+@rendermode InteractiveServer
+@inject HttpClient Http
+@inject NavigationManager NavManager
 
-@* <h3>Users Overview</h3> *@
+<PageTitle>Users List</PageTitle>
 
-@* @code { *@
-@*     private string activeTab = "users"; *@
-@*     private List<User> users = new(); *@
-@*     private List<Car> cars = new(); *@
-@*     private List<Booking> bookings = new(); *@
-@*     private User? selectedUser; *@
-@*     private Car? selectedCar; *@
-@*     private Booking? selectedBooking; *@
-@*     private string? errorMessage; *@
+<div class="container py-5">
+    <h1 class="mb-4" style="padding-left:15px"><u>Users list</u></h1>
 
-@*     protected override async Task OnInitializedAsync() *@
-@*     { *@
-@*         try *@
-@*         { *@
-@*             users = await Http.GetFromJsonAsync<List<User>>("http://localhost:5087/api/users") ?? new(); *@
-@*             cars = await Http.GetFromJsonAsync<List<Car>>("http://localhost:5087/api/cars") ?? new(); *@
-@*             bookings = await Http.GetFromJsonAsync<List<Booking>>("http://localhost:5087/api/bookings") ?? new(); *@
-@*         } *@
-@*         catch (Exception ex) *@
-@*         { *@
-@*             errorMessage = $"Error loading data: {ex.Message}"; *@
-@*         } *@
-@*     } *@
+    <div class="row">
+        <div class="col-md-12 p-4">
+            <div class="mb-3">
+                <button class="btn btn-primary" @onclick="ShowAddModal">Add New User</button>
+            </div>
+            <!-- Add Success Message Display -->
+            @if (successMessage != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @successMessage
+                    <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+                </div>
+            }
+            @if (errorMessage != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @errorMessage
+                    <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+                </div>
+            }
+            else
+            {
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Signup Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in users)
+                        {
+                            <tr>
+                                <td>@user.UserId</td>
+                                <td>@user.Username</td>
+                                <td>@user.Email</td>
+                                <td>@user.PhoneNumber</td>
+                                <td>@user.FirstName @user.LastName</td>
+                                <td>@GetAgeDisplay(user.DateOfBirth)</td>
+                                <td>@user.RegistrationDate.ToString("dd MMM yyyy HH:mm")</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" @onclick="@(() => ShowEditModal(user))">Edit</button>
+                                    <button class="btn btn-sm btn-danger" @onclick="@(() => ShowDeleteModal(user))">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
 
-@*     // User CRUD Operations *@
-@*     private async Task DeleteUser(int userId) *@
-@*     { *@
-@*         try *@
-@*         { *@
-@*             var response = await Http.DeleteAsync($"http://localhost:5087/api/users/{userId}"); *@
-@*             if (response.IsSuccessStatusCode) *@
-@*             { *@
-@*                 users = users.Where(u => u.UserId != userId).ToList(); *@
-@*             } *@
-@*         } *@
-@*         catch (Exception ex) *@
-@*         { *@
-@*             errorMessage = $"Error deleting user: {ex.Message}"; *@
-@*         } *@
-@*     } *@
+<!-- Add User Modal -->
+@if (showAddModal)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New User</h5>
+                    <button type="button" class="btn-close" @onclick="CloseAddModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input class="form-control" @bind="newUser.Username" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" @bind="newUser.Email" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input class="form-control" @bind="newUser.PhoneNumber" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">First Name</label>
+                        <input class="form-control" @bind="newUser.FirstName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input class="form-control" @bind="newUser.LastName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="date" class="form-control" @bind="newUser.DateOfBirth" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" @bind="newUser.PasswordHash" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseAddModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="AddUser">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
-@*     // Car CRUD Operations *@
-@*     private void OpenEditModal(User user) => selectedUser = user; *@
+<!-- Edit User Modal -->
+@if (showEditModal)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit User</h5>
+                    <button type="button" class="btn-close" @onclick="CloseEditModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input class="form-control" @bind="editUser.Username" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" @bind="editUser.Email" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input class="form-control" @bind="editUser.PhoneNumber" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">First Name</label>
+                        <input class="form-control" @bind="editUser.FirstName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input class="form-control" @bind="editUser.LastName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="date" class="form-control" @bind="editUser.DateOfBirth" />
+                    </div>
+                    <input hidden class="form-control" @bind="editUser.PasswordHash" />
+                    <input hidden class="form-control" @bind="editUser.RegistrationDate" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseEditModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="EditUser">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
-@*     private void OpenCarEditModal(Car car) => selectedCar = car; *@
+<!-- Delete Confirmation Modal -->
+@if (showDeleteModal)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete User</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDeleteModal"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete user @userToDelete?.Username?
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseDeleteModal">Cancel</button>
+                    <button class="btn btn-danger" @onclick="DeleteUser">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
-@*     private void OpenBookingEditModal(Booking booking) => selectedBooking = booking; *@
+@code {
+    private List<User> users = new();
+    private string? errorMessage;
+    private string? successMessage;
 
-@*     private async Task HandleCarEdit() *@
-@*     { *@
-@*         try *@
-@*         { *@
-@*             var response = await Http.PutAsJsonAsync($"http://localhost:5087/api/cars/{selectedCar.CarId}", selectedCar); *@
-@*             if (response.IsSuccessStatusCode) *@
-@*             { *@
-@*                 var index = cars.FindIndex(c => c.CarId == selectedCar.CarId); *@
-@*                 cars[index] = selectedCar; *@
-@*                 CloseModal(); *@
-@*             } *@
-@*         } *@
-@*         catch (Exception ex) *@
-@*         { *@
-@*             errorMessage = $"Error updating car: {ex.Message}"; *@
-@*         } *@
-@*     } *@
+    // Add User
+    private bool showAddModal = false;
+    private User newUser = new();
 
-@*     private async Task DeleteCar(int carId) *@
-@*     { *@
-@*         try *@
-@*         { *@
-@*             var response = await Http.DeleteAsync($"http://localhost:5087/api/cars/{carId}"); *@
-@*             if (response.IsSuccessStatusCode) *@
-@*             { *@
-@*                 cars = cars.Where(c => c.CarId != carId).ToList(); *@
-@*             } *@
-@*         } *@
-@*         catch (Exception ex) *@
-@*         { *@
-@*             errorMessage = $"Error deleting car: {ex.Message}"; *@
-@*         } *@
-@*     } *@
+    // Edit User
+    private bool showEditModal = false;
+    private User editUser = new();
 
-@*     // Booking CRUD Operations *@
-@*     private async Task DeleteBooking(int bookingId) *@
-@*     { *@
-@*         try *@
-@*         { *@
-@*             var response = await Http.DeleteAsync($"http://localhost:5087/api/bookings/{bookingId}"); *@
-@*             if (response.IsSuccessStatusCode) *@
-@*             { *@
-@*                 bookings = bookings.Where(b => b.BookingId != bookingId).ToList(); *@
-@*             } *@
-@*         } *@
-@*         catch (Exception ex) *@
-@*         { *@
-@*             errorMessage = $"Error deleting booking: {ex.Message}"; *@
-@*         } *@
-@*     } *@
+    // Delete User
+    private bool showDeleteModal = false;
+    private User? userToDelete;
 
-@*     private void CloseModal() *@
-@*     { *@
-@*         selectedUser = null; *@
-@*         selectedCar = null; *@
-@*         selectedBooking = null; *@
-@*     } *@
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
 
-@*     // Model Classes *@
-@*     public class User *@
-@*     { *@
-@*         public int UserId { get; set; } *@
-@*         public string Username { get; set; } = string.Empty; *@
-@*         public string PasswordHash { get; set; } = string.Empty; *@
-@*         public string Email { get; set; } = string.Empty; *@
-@*         public string PhoneNumber { get; set; } = string.Empty; *@
-@*         public string FirstName { get; set; } = string.Empty; *@
-@*         public string LastName { get; set; } = string.Empty; *@
-@*         public string DateOfBirth { get; set; } = string.Empty; *@
-@*     } *@
+    private async Task LoadUsers()
+    {
+        try
+        {
+            users = await Http.GetFromJsonAsync<List<User>>("http://localhost:5087/api/users") ?? new();
+            errorMessage = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading data: {ex.Message}";
+        }
+    }
 
-@*     // Model Classes (FIXED TYPES) *@
-@*     public class Car *@
-@*     { *@
-@*         public int CarId { get; set; } *@
-@*         public string Make { get; set; } = string.Empty; *@
-@*         public string Model { get; set; } = string.Empty; *@
-@*         public int Year { get; set; } *@
-@*         public string Category { get; set; } = string.Empty; *@
-@*         public string TransmissionType { get; set; } = string.Empty; *@
-@*         public int AvailabilityStatus { get; set; } // Changed to int *@
-@*         public decimal DailyRate { get; set; } *@
-@*     } *@
+    private string GetAgeDisplay(DateTime? dateOfBirth)
+    {
+        if (!dateOfBirth.HasValue || dateOfBirth.Value > DateTime.Today)
+            return "N/A";
+
+        var age = DateTime.Today.Year - dateOfBirth.Value.Year;
+        if (dateOfBirth.Value.Date > DateTime.Today.AddYears(-age)) age--;
+        return $"{age} years";
+    }
+
+    // Add User Methods
+    private void ShowAddModal() => showAddModal = true;
+    private void CloseAddModal() => showAddModal = false;
+
+    private async Task AddUser()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("http://localhost:5087/api/users", newUser);
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "User added successfully!";
+                errorMessage = null;
+                await LoadUsers();
+                CloseAddModal();
+                StartMessageTimer();
+            }
+            else
+            {
+                errorMessage = $"Error adding user: {await response.Content.ReadAsStringAsync()}";
+                successMessage = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error adding user: {ex.Message}";
+            successMessage = null;
+        }
+    }
+
+    // Edit User Methods
+    private void ShowEditModal(User user)
+    {
+        editUser = new User
+            {
+                UserId = user.UserId,
+                PasswordHash = user.PasswordHash,
+                Username = user.Username,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                DateOfBirth = user.DateOfBirth,
+                RegistrationDate = user.RegistrationDate
+            };
+        showEditModal = true;
+    }
+
+    private void CloseEditModal() => showEditModal = false;
+
+    private async Task EditUser()
+    {
+        try
+        {
+            var response = await Http.PutAsJsonAsync($"http://localhost:5087/api/users/{editUser.UserId}", editUser);
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "User updated successfully!";
+                errorMessage = null;
+                await LoadUsers();
+                CloseEditModal();
+                StartMessageTimer();
+            }
+            else
+            {
+                errorMessage = $"Error updating user: {await response.Content.ReadAsStringAsync()}";
+                successMessage = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error updating user: {ex.Message}";
+            successMessage = null;
+        }
+    }
+
+    // Add timer to clear messages
+    private void StartMessageTimer()
+    {
+        var timer = new System.Threading.Timer(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                successMessage = null;
+                errorMessage = null;
+                StateHasChanged();
+            });
+        }, null, 5000, Timeout.Infinite);
+    }
 
 
-@*     public class Booking *@
-@*     { *@
-@*         public int BookingId { get; set; } *@
-@*         public int UserId { get; set; } *@
-@*         public int CarId { get; set; } *@
-@*         public string PickupLocation { get; set; } = string.Empty; *@
-@*         public string PickupDatetime { get; set; } = string.Empty; *@
-@*         public string DropoffLocation { get; set; } = string.Empty; *@
-@*         public string DropoffDatetime { get; set; }= string.Empty; *@
-@*         public string BookingDate { get; set; } = string.Empty; *@
-@*         public int RentalDays { get; set; } *@
-@*         public decimal TotalRentalPrice { get; set; } *@
-@*         public string BookingStatus { get; set; } = string.Empty; *@
-@*         public string CreatedAt { get; set; }= string.Empty; *@
-@*         public string UpdatedAt { get; set; } = string.Empty; *@
-@*     } *@
-@* } *@
+    // Delete User Methods
+    private void ShowDeleteModal(User user)
+    {
+        userToDelete = user;
+        showDeleteModal = true;
+    }
+
+    private void CloseDeleteModal()
+    {
+        showDeleteModal = false;
+        userToDelete = null;
+    }
+
+    private async Task DeleteUser()
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"http://localhost:5087/api/users/{userToDelete?.UserId}");
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "User deleted successfully!";
+                errorMessage = null;
+                await LoadUsers();
+                CloseDeleteModal();
+                StartMessageTimer();
+            }
+            else
+            {
+                errorMessage = $"Error deleting user: {await response.Content.ReadAsStringAsync()}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting user: {ex.Message}";
+        }
+    }
+
+    public class User
+    {
+        public int UserId { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public DateTime DateOfBirth { get; set; }
+        public DateTime RegistrationDate { get; set; }
+    }
+}
