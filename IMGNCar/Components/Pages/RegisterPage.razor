@@ -19,10 +19,18 @@
 
             <h3 class="card-title text-center mb-4">Create Account</h3>
 
-            @if (!string.IsNullOrEmpty(errorMessage))
+            @if (showSuccessMessage)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Account created successfully! Redirecting to login...
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(errorMessage))
             {
                 <div class="alert alert-danger">@errorMessage</div>
             }
+
 
             <EditForm Model="@newUser" OnValidSubmit="HandleSignUp">
                 <DataAnnotationsValidator />
@@ -87,15 +95,19 @@
 @code {
     private NewUser newUser = new();
     private string errorMessage = "";
+    private bool showSuccessMessage = false;
 
     private async Task HandleSignUp()
     {
         Console.WriteLine("DEBUG: HandleSignUp triggered.");
         try
         {
+            // Reset messages
+            showSuccessMessage = false;
+            errorMessage = "";
             // Copy the plain password to PasswordHash so that the API receives it.
             newUser.PasswordHash = newUser.Password;
-            // Optionally convert DateOfBirth to UTC if required by your API.
+            // Optionally convert DateOfBirth to UTC if required by API.
             newUser.DateOfBirth = newUser.DateOfBirth?.ToUniversalTime();
 
             var response = await Http.PostAsJsonAsync("http://localhost:5087/api/users", newUser);
@@ -104,7 +116,8 @@
 
             if (response.IsSuccessStatusCode)
             {
-                NavManager.NavigateTo("/login");
+                showSuccessMessage = true;
+                StartRedirectTimer();
             }
             else
             {
@@ -116,6 +129,18 @@
             errorMessage = $"An error occurred: {ex.Message}";
             Console.WriteLine("DEBUG: Exception: " + ex.Message);
         }
+    }
+
+    private void StartRedirectTimer()
+    {
+        var timer = new System.Threading.Timer(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                NavManager.NavigateTo("/login");
+                StateHasChanged();
+            });
+        }, null, 3000, Timeout.Infinite); // Redirect after 3 seconds
     }
 
     public class NewUser

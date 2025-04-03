@@ -245,27 +245,8 @@
         {
             showConfirmation = false; // Hide modal
 
-            // Retrieve current user's ID from authentication state
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-            if (user.Identity is not null && user.Identity.IsAuthenticated)
-            {
-                var claim = user.FindFirst("UserId") ?? user.FindFirst("sub");
-                if (claim != null)
-                {
-                    booking.UserId = int.Parse(claim.Value);
-                }
-                else
-                {
-                    booking.UserId = 1; // fallback, but ideally force login
-                }
-            }
-            else
-            {
-                // User not authenticated, navigate to login page.
-                NavManager.NavigateTo("/login");
-                return;
-            }
+            // HARDCODED USER ID FOR DEMO
+            booking.UserId = 2;
 
             // Set dropoff datetime based on pickup datetime and rental days
             booking.DropoffDatetime = booking.PickupDatetime.AddDays(booking.RentalDays);
@@ -300,13 +281,13 @@
     public class Car
     {
         public int CarId { get; set; }
-        public string Make { get; set; } = "";
-        public string Model { get; set; } = "";
-        public string Category { get; set; } = "";
+        public string Make { get; set; } = string.Empty;
+        public string Model { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
         public int Year { get; set; }
-        public string TransmissionType { get; set; } = "";
+        public string TransmissionType { get; set; } = string.Empty;
         public decimal DailyRate { get; set; }
-        public string ImageUrl { get; set; } = "";
+        public string ImageUrl { get; set; } = string.Empty;
         public bool AvailabilityStatus { get; set; }
     }
 
@@ -315,9 +296,9 @@
         public int BookingId { get; set; }
         public int UserId { get; set; }
         public int CarId { get; set; }
-        public string PickupLocation { get; set; } = "";
+        public string PickupLocation { get; set; } = string.Empty;
         public DateTime PickupDatetime { get; set; }
-        public string DropoffLocation { get; set; } = "";
+        public string DropoffLocation { get; set; } = string.Empty;
         public DateTime DropoffDatetime { get; set; }
         public DateTime BookingDate { get; set; }
         public int RentalDays { get; set; }
