@@ -33,20 +33,19 @@ cd IMGNCar
 1. Start **XAMPP** and run **Apache** + **MySQL**.
 2. Open `http://localhost/phpmyadmin`.
 3. Create a database named `imgncar`.
-4. Import the SQL file from `/IMGNCar/imgncar.sql`.
+4. Import the SQL file from `/IMGNCar/imgncar.sql` or `Database/imgncar.sql` (in CarRentalAPI).
 
-### 3. Configure Backend (API)
+### 3. Import the Database
+1. In phpMyAdmin, select the `imgncar` database.
+2. Click **Import** > Choose the `imgncar.sql` file.
+3. Click **Go**.
+
+### 4. Configure Backend (API)
 1. Navigate to the API project:
    ```bash
    git clone https://github.com/ImagineBillie/CarRentalAPI.git
    cd CarRentalAPI
    ```
-
-### 4. Run Migrations
-```bash
-dotnet ef database update
-```
-
 ---
 
 ## ⚡ Running the Application
@@ -70,7 +69,7 @@ dotnet run
 
 ## 📖 Usage
 1. **Homepage**: Browse featured cars and service highlights.
-2. **About**: About project system, mission and values.
+2. **About**: About the project system, mission and values.
 3. **Browse Cars**: Click "More Info" to view details.
 4. **Book a Car**:
    - Select pickup/dropoff locations, dates, and rental days.
@@ -82,7 +81,7 @@ dotnet run
 ---
 
 ## 🔧 API Documentation
-- **Swagger UI**: Available at `http://localhost:5000/swagger`.
+- **Swagger UI**: Available at `http://localhost:5087/swagger`.
 - **Sample Endpoints**:
   - `GET /api/cars`: List all cars.
   - `GET /api/users`: List all users.
