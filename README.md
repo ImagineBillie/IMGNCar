@@ -63,7 +63,7 @@ dotnet run
 cd IMGNCar
 dotnet run
 ```
-- Frontend runs at `https://localhost:7137/`.
+- Frontend runs at `https://localhost:7137/` or look at "Now listening on: http://localhost:port_number" at the terminal.
 
 ---
 
